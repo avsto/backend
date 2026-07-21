@@ -1,0 +1,228 @@
+<div class="space-y-6">
+
+    <!-- Top Cards -->
+
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-5">
+
+        <div class="bg-white rounded-xl shadow p-5">
+            <p class="text-gray-500">Pending</p>
+            <h2 class="text-3xl font-bold mt-2"><%= pending %></h2>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5">
+            <p class="text-gray-500">Winning</p>
+            <h2 class="text-3xl font-bold text-green-600 mt-2">
+                <%= win %>
+            </h2>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5">
+            <p class="text-gray-500">Loss</p>
+            <h2 class="text-3xl font-bold text-red-600 mt-2">
+                <%= lose %>
+            </h2>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5">
+            <p class="text-gray-500">Bet Amount</p>
+            <h2 class="text-3xl font-bold text-blue-600 mt-2">
+                ₹ <%= totalBetAmount %>
+            </h2>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5">
+            <p class="text-gray-500">Winning Paid</p>
+            <h2 class="text-3xl font-bold text-green-600 mt-2">
+                ₹ <%= totalWinning %>
+            </h2>
+        </div>
+
+    </div>
+
+    <!-- Table -->
+
+    <div class="bg-white rounded-2xl shadow p-6">
+
+        <div class="flex justify-between mb-5">
+
+            <h2 class="text-2xl font-bold">
+                Bet History
+            </h2>
+
+            <form
+                method="GET"
+                action="/admin/bets"
+                class="flex gap-2"
+            >
+
+                <input
+                    type="text"
+                    name="search"
+                    value="<%= search %>"
+                    placeholder="Name / Mobile / Period"
+                    class="border rounded-lg px-4 py-2"
+                >
+
+                <select
+                    name="result"
+                    class="border rounded-lg px-4 py-2"
+                >
+
+                    <option value="">
+                        All
+                    </option>
+
+                    <option value="pending" <%= result==="pending"?"selected":"" %>>
+                        Pending
+                    </option>
+
+                    <option value="win" <%= result==="win"?"selected":"" %>>
+                        Win
+                    </option>
+
+                    <option value="lose" <%= result==="lose"?"selected":"" %>>
+                        Lose
+                    </option>
+
+                </select>
+
+                <button class="bg-indigo-600 text-white px-5 rounded-lg">
+
+                    Search
+
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="overflow-x-auto">
+
+            <table class="min-w-full">
+
+                <thead class="bg-gray-100">
+
+                    <tr>
+
+                        <th class="px-4 py-3">User</th>
+
+                        <th>Mobile</th>
+
+                        <th>Period</th>
+
+                        <th>Type</th>
+
+                        <th>Value</th>
+
+                        <th>Amount</th>
+
+                        <th>Winning</th>
+
+                        <th>Status</th>
+
+                        <th>Date</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <% bets.forEach(bet=>{ %>
+
+                    <tr class="border-b hover:bg-gray-50">
+
+                        <td class="px-4 py-3">
+                            <%= bet.user?.name %>
+                        </td>
+
+                        <td>
+                            <%= bet.user?.mobile %>
+                        </td>
+
+                        <td>
+                            <%= bet.game?.period %>
+                        </td>
+
+                        <td class="capitalize">
+                            <%= bet.type %>
+                        </td>
+
+                        <td class="capitalize">
+                            <%= bet.value %>
+                        </td>
+
+                        <td class="font-semibold text-blue-600">
+                            ₹ <%= bet.amount %>
+                        </td>
+
+                        <td class="font-semibold text-green-600">
+                            ₹ <%= bet.winningAmount %>
+                        </td>
+
+                        <td>
+
+                            <% if(bet.result==="win"){ %>
+
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+
+                                Win
+
+                            </span>
+
+                            <% }else if(bet.result==="lose"){ %>
+
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">
+
+                                Lose
+
+                            </span>
+
+                            <% }else{ %>
+
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
+
+                                Pending
+
+                            </span>
+
+                            <% } %>
+
+                        </td>
+
+                        <td>
+
+                            <%= new Date(bet.createdAt).toLocaleString() %>
+
+                        </td>
+
+                    </tr>
+
+                    <% }) %>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- Pagination -->
+
+        <div class="flex justify-center gap-2 mt-8">
+
+            <% for(let i=1;i<=totalPages;i++){ %>
+
+            <a
+                href="/admin/bets?page=<%= i %>&search=<%= search %>&result=<%= result %>"
+                class="<%= currentPage===i?'bg-indigo-600 text-white':'bg-gray-200' %> px-4 py-2 rounded-lg"
+            >
+                <%= i %>
+            </a>
+
+            <% } %>
+
+        </div>
+
+    </div>
+
+</div>

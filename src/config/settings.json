@@ -1,0 +1,10 @@
+{
+  "gameDuration": 50,
+  "minBet": 10,
+  "maxBet": 10000,
+  "numberWin": 9,
+  "colorWin": 2,
+  "sizeWin": 2,
+  "maintenance": false,
+  "registration": true
+}

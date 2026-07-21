@@ -1,0 +1,315 @@
+<div class="bg-white rounded-2xl shadow p-6">
+
+    <h2 class="text-2xl font-bold mb-8">
+        Game Settings
+    </h2>
+
+    <form action="/admin/settings" method="POST">
+
+        <!-- Game Settings -->
+
+        <h3 class="text-lg font-semibold mb-4 border-b pb-2">
+            Game
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div>
+                <label>Game Duration (Seconds)</label>
+                <input
+                    type="number"
+                    name="gameDuration"
+                    value="<%= settings.gameDuration %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Break Time (Seconds)</label>
+                <input
+                    type="number"
+                    name="breakTime"
+                    value="<%= settings.breakTime %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+        </div>
+
+        <!-- Betting -->
+
+        <h3 class="text-lg font-semibold mt-10 mb-4 border-b pb-2">
+            Betting
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div>
+                <label>Minimum Bet</label>
+                <input
+                    type="number"
+                    name="minimumBet"
+                    value="<%= settings.minimumBet %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Maximum Bet</label>
+                <input
+                    type="number"
+                    name="maximumBet"
+                    value="<%= settings.maximumBet %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+        </div>
+
+        <!-- Multipliers -->
+
+        <h3 class="text-lg font-semibold mt-10 mb-4 border-b pb-2">
+            Winning Multipliers
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <div>
+                <label>Number Multiplier</label>
+                <input
+                    type="number"
+                    name="numberMultiplier"
+                    value="<%= settings.numberMultiplier %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Color Multiplier</label>
+                <input
+                    type="number"
+                    name="colorMultiplier"
+                    value="<%= settings.colorMultiplier %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Size Multiplier</label>
+                <input
+                    type="number"
+                    name="sizeMultiplier"
+                    value="<%= settings.sizeMultiplier %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+        </div>
+
+        <!-- Deposit -->
+
+        <h3 class="text-lg font-semibold mt-10 mb-4 border-b pb-2">
+            Deposit / Withdraw
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <div>
+                <label>Minimum Deposit</label>
+                <input
+                    type="number"
+                    name="minimumDeposit"
+                    value="<%= settings.minimumDeposit %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Minimum Withdraw</label>
+                <input
+                    type="number"
+                    name="minimumWithdraw"
+                    value="<%= settings.minimumWithdraw %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Withdraw Charge (%)</label>
+                <input
+                    type="number"
+                    name="withdrawCharge"
+                    value="<%= settings.withdrawCharge %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+        </div>
+
+        <!-- Bonus -->
+
+        <h3 class="text-lg font-semibold mt-10 mb-4 border-b pb-2">
+            Bonus
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div>
+                <label>Signup Bonus</label>
+                <input
+                    type="number"
+                    name="signupBonus"
+                    value="<%= settings.signupBonus %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Referral Bonus</label>
+                <input
+                    type="number"
+                    name="referralBonus"
+                    value="<%= settings.referralBonus %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+        </div>
+
+        <!-- Result -->
+
+        <h3 class="text-lg font-semibold mt-10 mb-4 border-b pb-2">
+            Result
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div>
+
+                <label>Result Mode</label>
+
+                <select
+                    name="resultMode"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+
+                    <option value="auto" <%= settings.resultMode=="auto" ? "selected":"" %>>
+                        Auto
+                    </option>
+
+                    <option value="manual" <%= settings.resultMode=="manual" ? "selected":"" %>>
+                        Manual
+                    </option>
+
+                    <option value="rtp" <%= settings.resultMode=="rtp" ? "selected":"" %>>
+                        RTP
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div>
+                <label>Manual Number</label>
+                <input
+                    type="number"
+                    name="manualNumber"
+                    value="<%= settings.manualNumber %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Manual Color</label>
+                <input
+                    type="text"
+                    name="manualColor"
+                    value="<%= settings.manualColor %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+            <div>
+                <label>Manual Size</label>
+                <input
+                    type="text"
+                    name="manualSize"
+                    value="<%= settings.manualSize %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+        </div>
+
+        <!-- RTP -->
+
+        <h3 class="text-lg font-semibold mt-10 mb-4 border-b pb-2">
+            RTP
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div>
+                <label>RTP Percentage</label>
+                <input
+                    type="number"
+                    name="rtpPercentage"
+                    value="<%= settings.rtpPercentage %>"
+                    class="w-full border rounded-lg p-3 mt-2"
+                >
+            </div>
+
+        </div>
+
+        <!-- Switches -->
+
+        <div class="mt-10 space-y-4">
+
+            <label class="flex items-center gap-3">
+
+                <input
+                    type="checkbox"
+                    name="bettingEnabled"
+                    <%= settings.bettingEnabled ? "checked" : "" %>
+                >
+
+                Betting Enabled
+
+            </label>
+
+            <label class="flex items-center gap-3">
+
+                <input
+                    type="checkbox"
+                    name="maintenanceMode"
+                    <%= settings.maintenanceMode ? "checked" : "" %>
+                >
+
+                Maintenance Mode
+
+            </label>
+
+            <label class="flex items-center gap-3">
+
+                <input
+                    type="checkbox"
+                    name="rtpEnabled"
+                    <%= settings.rtpEnabled ? "checked" : "" %>
+                >
+
+                Enable RTP
+
+            </label>
+
+        </div>
+
+        <button
+            type="submit"
+            class="mt-10 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl"
+        >
+            Save Settings
+        </button>
+
+    </form>
+
+</div>

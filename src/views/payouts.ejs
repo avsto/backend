@@ -1,0 +1,184 @@
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+    <!-- Header -->
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">
+                Withdrawal Requests
+            </h2>
+
+            <p class="text-gray-500 text-sm">
+                Pending payout requests from users
+            </p>
+        </div>
+
+        <form
+            action="/admin/payouts"
+            method="GET"
+            class="flex gap-3"
+        >
+
+            <input
+                type="text"
+                name="search"
+                value="<%= search || '' %>"
+                placeholder="Search name or mobile..."
+                class="border rounded-xl px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+
+            <button
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 rounded-xl"
+            >
+                Search
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- Table -->
+
+    <div class="overflow-x-auto">
+
+        <table class="min-w-full">
+
+            <thead>
+
+                <tr class="bg-slate-100 text-left">
+
+                    <th class="px-4 py-3">User</th>
+
+                    <th class="px-4 py-3">Mobile</th>
+
+                    <th class="px-4 py-3">Amount</th>
+
+                    <th class="px-4 py-3">Wallet</th>
+
+                    <th class="px-4 py-3">Status</th>
+
+                    <th class="px-4 py-3">Requested</th>
+
+                    <th class="px-4 py-3 text-center">
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <% if(payouts.length>0){ %>
+
+                <% payouts.forEach(item=>{ %>
+
+                <tr class="border-b hover:bg-gray-50">
+
+                    <td class="px-4 py-4 font-semibold">
+
+                        <%= item.user?.name %>
+
+                    </td>
+
+                    <td class="px-4 py-4">
+
+                        <%= item.user?.mobile %>
+
+                    </td>
+
+                    <td class="px-4 py-4 font-bold text-red-600">
+
+                        ₹ <%= item.amount %>
+
+                    </td>
+
+                    <td class="px-4 py-4 font-semibold text-green-600">
+
+                        ₹ <%= item.balance %>
+
+                    </td>
+
+                    <td class="px-4 py-4">
+
+                        <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+
+                            Pending
+
+                        </span>
+
+                    </td>
+
+                    <td class="px-4 py-4">
+
+                        <%= new Date(item.createdAt).toLocaleString() %>
+
+                    </td>
+
+                    <td class="px-4 py-4">
+
+                        <div class="flex gap-2 justify-center">
+
+                            <a
+                                href="/admin/payouts/approve/<%= item.walletId %>/<%= item.transactionId %>"
+                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm"
+                                onclick="return confirm('Approve this payout?')"
+                            >
+                                Approve
+                            </a>
+
+                            <a
+                                href="/admin/payouts/reject/<%= item.walletId %>/<%= item.transactionId %>"
+                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm"
+                                onclick="return confirm('Reject this payout?')"
+                            >
+                                Reject
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                <% }) %>
+
+                <% } else { %>
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="text-center py-16 text-gray-500"
+                    >
+
+                        <div class="flex flex-col items-center">
+
+                            <div class="text-6xl mb-3">
+
+                                💸
+
+                            </div>
+
+                            <h3 class="text-xl font-semibold">
+
+                                No Pending Withdrawal Requests
+
+                            </h3>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                <% } %>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

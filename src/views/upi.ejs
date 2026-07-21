@@ -1,0 +1,325 @@
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+
+    <!-- Header -->
+
+    <div class="flex justify-between items-center mb-6">
+
+
+        <h2 class="text-2xl font-bold">
+            UPI Management
+        </h2>
+
+
+        <button
+            onclick="document.getElementById('addUpi').classList.toggle('hidden')"
+            class="bg-indigo-600 text-white px-5 py-2 rounded-lg"
+        >
+            + Add UPI
+        </button>
+
+
+    </div>
+
+
+
+
+
+    <!-- Add UPI -->
+
+    <div
+        id="addUpi"
+        class="hidden mb-6 bg-gray-50 rounded-xl p-5"
+    >
+
+
+        <form
+            method="POST"
+            action="/admin/upi/add"
+            class="flex gap-3"
+        >
+
+
+            <input
+                type="text"
+                name="upiId"
+                placeholder="Enter UPI ID"
+                required
+                class="
+                flex-1
+                border
+                rounded-lg
+                px-4
+                py-2
+                outline-none
+                focus:ring-2
+                focus:ring-indigo-500
+                "
+            >
+
+
+            <button
+                class="
+                bg-green-600
+                text-white
+                px-6
+                rounded-lg
+                "
+            >
+                Save
+            </button>
+
+
+        </form>
+
+
+    </div>
+
+
+
+
+
+
+
+
+    <!-- UPI Table -->
+
+
+    <div class="overflow-x-auto">
+
+
+        <table class="min-w-full text-sm">
+
+
+            <thead class="bg-gray-100">
+
+
+                <tr>
+
+
+                    <th class="px-4 py-3 text-left">
+                        UPI ID
+                    </th>
+
+
+                    <th class="px-4 py-3 text-center">
+                        Status
+                    </th>
+
+
+                    <th class="px-4 py-3 text-center">
+                        Created
+                    </th>
+
+
+                    <th class="px-4 py-3 text-center">
+                        Action
+                    </th>
+
+
+                </tr>
+
+
+            </thead>
+
+
+
+
+
+            <tbody>
+
+
+            <% upis.forEach(upi=>{ %>
+
+
+                <tr class="border-b hover:bg-gray-50">
+
+
+                    <td class="px-4 py-3 font-semibold">
+
+                        <%= upi.upiId %>
+
+                    </td>
+
+
+
+
+
+                    <td class="px-4 py-3 text-center">
+
+
+                        <% if(upi.status){ %>
+
+
+                            <span
+                            class="
+                            bg-green-100
+                            text-green-700
+                            px-3
+                            py-1
+                            rounded-full
+                            text-xs
+                            "
+                            >
+                                Active
+                            </span>
+
+
+                        <% }else{ %>
+
+
+                            <span
+                            class="
+                            bg-red-100
+                            text-red-700
+                            px-3
+                            py-1
+                            rounded-full
+                            text-xs
+                            "
+                            >
+                                Inactive
+                            </span>
+
+
+                        <% } %>
+
+
+                    </td>
+
+
+
+
+
+
+                    <td class="px-4 py-3 text-center text-gray-500">
+
+
+                        <%= new Date(
+                            upi.createdAt
+                        ).toLocaleDateString() %>
+
+
+                    </td>
+
+
+
+
+
+
+
+                    <td class="px-4 py-3 text-center">
+
+
+                        <div class="flex justify-center gap-2">
+
+
+
+                            <form
+                            method="POST"
+                            action="/admin/upi/toggle/<%= upi._id %>"
+                            >
+
+
+                                <button
+                                class="
+                                bg-yellow-500
+                                text-white
+                                px-3
+                                py-1
+                                rounded-lg
+                                text-xs
+                                "
+                                >
+
+                                Toggle
+
+                                </button>
+
+
+                            </form>
+
+
+
+
+
+
+                            <form
+                            method="POST"
+                            action="/admin/upi/delete/<%= upi._id %>"
+                            onsubmit="
+                            return confirm('Delete UPI?')
+                            "
+                            >
+
+
+                                <button
+                                class="
+                                bg-red-600
+                                text-white
+                                px-3
+                                py-1
+                                rounded-lg
+                                text-xs
+                                "
+                                >
+
+                                Delete
+
+                                </button>
+
+
+                            </form>
+
+
+
+
+                        </div>
+
+
+                    </td>
+
+
+
+
+                </tr>
+
+
+
+            <% }) %>
+
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+
+
+
+
+
+    <% if(upis.length===0){ %>
+
+
+        <div class="
+        text-center
+        py-10
+        text-gray-500
+        ">
+
+            No UPI Added
+
+        </div>
+
+
+    <% } %>
+
+
+
+</div>

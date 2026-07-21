@@ -1,0 +1,186 @@
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+    <div class="flex justify-between items-center mb-6">
+
+        <h2 class="text-2xl font-bold">
+
+            Wallet Management
+
+        </h2>
+
+        <form
+            action="/admin/wallet"
+            method="GET"
+            class="flex gap-2"
+        >
+
+            <input
+                type="text"
+                name="search"
+                value="<%= search %>"
+                placeholder="Search User"
+                class="border rounded-lg px-4 py-2"
+            >
+
+            <button
+                class="bg-indigo-600 text-white px-5 rounded-lg"
+            >
+                Search
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <div class="overflow-x-auto">
+
+        <table class="min-w-full">
+
+            <thead class="bg-gray-100">
+
+                <tr>
+
+                    <th class="px-4 py-3 text-left">
+
+                        User
+
+                    </th>
+
+                    <th>
+
+                        Mobile
+
+                    </th>
+
+                    <th>
+
+                        Balance
+
+                    </th>
+
+                    <th>
+
+                        Transactions
+
+                    </th>
+
+                    <th>
+
+                        Last Transaction
+
+                    </th>
+
+                    <th>
+
+                        Status
+
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <% wallets.forEach(wallet=>{ %>
+
+                <tr class="border-b hover:bg-gray-50">
+
+                    <td class="px-4 py-3 font-semibold">
+
+                        <%= wallet.user?.name %>
+
+                    </td>
+
+                    <td>
+
+                        <%= wallet.user?.mobile %>
+
+                    </td>
+
+                    <td class="font-bold text-green-600">
+
+                        ₹ <%= wallet.balance %>
+
+                    </td>
+
+                    <td class="text-center">
+
+                        <%= wallet.transactions.length %>
+
+                    </td>
+
+                    <td>
+
+                        <% if(wallet.transactions.length){ %>
+
+                            <%= wallet.transactions[0].type %>
+
+                            -
+
+                            ₹ <%= wallet.transactions[0].amount %>
+
+                        <% }else{ %>
+
+                            -
+
+                        <% } %>
+
+                    </td>
+
+                    <td>
+
+                        <% if(wallet.user?.status=="active"){ %>
+
+                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+
+                            Active
+
+                        </span>
+
+                        <% }else{ %>
+
+                        <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">
+
+                            Blocked
+
+                        </span>
+
+                        <% } %>
+
+                    </td>
+
+                </tr>
+
+                <% }) %>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- Pagination -->
+
+    <div class="flex justify-center gap-2 mt-8">
+
+        <% for(let i=1;i<=totalPages;i++){ %>
+
+        <a
+            href="/admin/wallet?page=<%= i %>&search=<%= search %>"
+            class="<%= currentPage===i
+            ?'bg-indigo-600 text-white'
+            :'bg-gray-200' %> px-4 py-2 rounded-lg"
+        >
+
+            <%= i %>
+
+        </a>
+
+        <% } %>
+
+    </div>
+
+</div>

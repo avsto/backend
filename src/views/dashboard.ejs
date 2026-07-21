@@ -1,0 +1,167 @@
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+    <div class="bg-white rounded-2xl shadow p-6">
+        <p class="text-gray-500">Total Users</p>
+        <h2 class="text-4xl font-bold mt-2"><%= totalUsers %></h2>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6">
+        <p class="text-gray-500">Total Bets</p>
+        <h2 class="text-4xl font-bold mt-2"><%= totalBets %></h2>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6">
+        <p class="text-gray-500">Running Games</p>
+        <h2 class="text-4xl font-bold mt-2"><%= runningGames %></h2>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6">
+        <p class="text-gray-500">Total Profit</p>
+        <h2 class="text-4xl font-bold mt-2 text-green-600">
+            ₹ <%= totalProfit %>
+        </h2>
+    </div>
+
+</div>
+
+
+<!-- Statistics -->
+
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
+
+    <div class="bg-white rounded-2xl shadow p-6">
+        <p class="text-gray-500">Wallet Balance</p>
+        <h2 class="text-3xl font-bold text-blue-600">
+            ₹ <%= totalWallet %>
+        </h2>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6">
+        <p class="text-gray-500">Bet Amount</p>
+        <h2 class="text-3xl font-bold text-orange-600">
+            ₹ <%= totalBetAmount %>
+        </h2>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6">
+        <p class="text-gray-500">Winning Amount</p>
+        <h2 class="text-3xl font-bold text-red-600">
+            ₹ <%= totalWinningAmount %>
+        </h2>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6">
+        <p class="text-gray-500">Completed Games</p>
+        <h2 class="text-3xl font-bold">
+            <%= completedGames %>
+        </h2>
+    </div>
+
+</div>
+
+
+
+<div class="bg-white rounded-2xl shadow mt-8 p-6">
+
+    <h2 class="text-xl font-semibold mb-5">
+        Latest Games
+    </h2>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full">
+
+            <thead>
+
+                <tr class="border-b bg-gray-100">
+
+                    <th class="text-left py-3 px-3">Period</th>
+                    <th class="text-left px-3">Number</th>
+                    <th class="text-left px-3">Color</th>
+                    <th class="text-left px-3">Size</th>
+                    <th class="text-left px-3">Status</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <% if(latestGames.length){ %>
+
+                    <% latestGames.forEach(game=>{ %>
+
+                        <tr class="border-b hover:bg-gray-50">
+
+                            <td class="py-3 px-3">
+                                <%= game.period %>
+                            </td>
+
+                            <td class="px-3">
+                                <%= game.result?.number ?? "-" %>
+                            </td>
+
+                            <td class="px-3">
+
+                                <span class="
+                                    px-2 py-1 rounded text-white
+
+                                    <%= game.result?.color === 'green'
+                                    ? 'bg-green-500'
+                                    : game.result?.color === 'red'
+                                    ? 'bg-red-500'
+                                    : 'bg-purple-600' %>">
+
+                                    <%= game.result?.color ?? "-" %>
+
+                                </span>
+
+                            </td>
+
+                            <td class="px-3">
+                                <%= game.result?.size ?? "-" %>
+                            </td>
+
+                            <td class="px-3">
+
+                                <% if(game.status==="running"){ %>
+
+                                    <span class="text-yellow-600 font-semibold">
+                                        Running
+                                    </span>
+
+                                <% }else{ %>
+
+                                    <span class="text-green-600 font-semibold">
+                                        Completed
+                                    </span>
+
+                                <% } %>
+
+                            </td>
+
+                        </tr>
+
+                    <% }) %>
+
+                <% }else{ %>
+
+                    <tr>
+
+                        <td colspan="5" class="text-center py-10 text-gray-500">
+
+                            No Games Found
+
+                        </td>
+
+                    </tr>
+
+                <% } %>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

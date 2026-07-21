@@ -1,0 +1,206 @@
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+    <!-- Header -->
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+        <div>
+
+            <h2 class="text-2xl font-bold text-gray-800">
+                Deposit Requests
+            </h2>
+
+            <p class="text-gray-500 text-sm">
+                Pending deposit requests from users
+            </p>
+
+        </div>
+
+        <form
+            action="/admin/deposits"
+            method="GET"
+            class="flex gap-3"
+        >
+
+            <input
+                type="text"
+                name="search"
+                value="<%= search || '' %>"
+                placeholder="Search Name / Mobile"
+                class="border rounded-xl px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+
+            <button
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 rounded-xl"
+            >
+                Search
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- Table -->
+
+    <div class="overflow-x-auto">
+
+        <table class="min-w-full">
+
+            <thead>
+
+                <tr class="bg-slate-100 text-left">
+
+                    <th class="px-4 py-3">User</th>
+
+                    <th class="px-4 py-3">Mobile</th>
+
+                    <th class="px-4 py-3">Amount</th>
+
+                    <th class="px-4 py-3">Current Wallet</th>
+
+                    <th class="px-4 py-3">Reference</th>
+
+                    <th class="px-4 py-3">Status</th>
+
+                    <th class="px-4 py-3">Requested</th>
+
+                    <th class="px-4 py-3 text-center">
+
+                        Action
+
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <% if(deposits.length){ %>
+
+                    <% deposits.forEach(item=>{ %>
+
+                    <tr class="border-b hover:bg-gray-50">
+
+                        <td class="px-4 py-4 font-semibold">
+
+                            <%= item.user?.name %>
+
+                        </td>
+
+                        <td class="px-4 py-4">
+
+                            <%= item.user?.mobile %>
+
+                        </td>
+
+                        <td class="px-4 py-4 font-bold text-green-600">
+
+                            ₹ <%= item.amount %>
+
+                        </td>
+
+                        <td class="px-4 py-4">
+
+                            ₹ <%= item.balance %>
+
+                        </td>
+
+                        <td class="px-4 py-4">
+
+                            <%= item.referenceId || "-" %>
+
+                        </td>
+
+                        <td class="px-4 py-4">
+
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+
+                                Pending
+
+                            </span>
+
+                        </td>
+
+                        <td class="px-4 py-4">
+
+                            <%= new Date(item.createdAt).toLocaleString() %>
+
+                        </td>
+
+                        <td class="px-4 py-4">
+
+                            <div class="flex justify-center gap-2">
+
+                                <a
+                                    href="/admin/deposits/approve/<%= item.walletId %>/<%= item.transactionId %>"
+                                    onclick="return confirm('Approve this deposit?')"
+                                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm"
+                                >
+
+                                    Approve
+
+                                </a>
+
+                                <a
+                                    href="/admin/deposits/reject/<%= item.walletId %>/<%= item.transactionId %>"
+                                    onclick="return confirm('Reject this deposit?')"
+                                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm"
+                                >
+
+                                    Reject
+
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <% }) %>
+
+                <% }else{ %>
+
+                <tr>
+
+                    <td
+                        colspan="8"
+                        class="text-center py-20"
+                    >
+
+                        <div class="flex flex-col items-center">
+
+                            <div class="text-6xl mb-4">
+
+                                💳
+
+                            </div>
+
+                            <h3 class="text-xl font-semibold">
+
+                                No Pending Deposit Requests
+
+                            </h3>
+
+                            <p class="text-gray-500 mt-2">
+
+                                All deposit requests have been processed.
+
+                            </p>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                <% } %>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

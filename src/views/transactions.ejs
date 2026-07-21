@@ -1,0 +1,242 @@
+<div class="bg-white rounded-2xl shadow-lg p-6">
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">
+                Transactions
+            </h2>
+
+            <p class="text-gray-500 text-sm mt-1">
+                All wallet transactions
+            </p>
+        </div>
+
+        <form
+            action="/admin/transactions"
+            method="GET"
+            class="flex flex-wrap gap-3"
+        >
+
+            <input
+                type="text"
+                name="search"
+                value="<%= typeof search !== 'undefined' ? search : '' %>"
+                placeholder="Search user..."
+                class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+            >
+
+            <select
+                name="type"
+                class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+            >
+
+                <option value="">All Types</option>
+
+                <option value="deposit"
+                    <%= typeof type !== 'undefined' && type==='deposit' ? 'selected' : '' %>>
+                    Deposit
+                </option>
+
+                <option value="withdraw"
+                    <%= typeof type !== 'undefined' && type==='withdraw' ? 'selected' : '' %>>
+                    Withdraw
+                </option>
+
+                <option value="bet"
+                    <%= typeof type !== 'undefined' && type==='bet' ? 'selected' : '' %>>
+                    Bet
+                </option>
+
+                <option value="win"
+                    <%= typeof type !== 'undefined' && type==='win' ? 'selected' : '' %>>
+                    Win
+                </option>
+
+                <option value="refund"
+                    <%= typeof type !== 'undefined' && type==='refund' ? 'selected' : '' %>>
+                    Refund
+                </option>
+
+            </select>
+
+            <button
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 rounded-lg"
+            >
+                Search
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="overflow-x-auto">
+
+        <table class="min-w-full">
+
+            <thead>
+
+                <tr class="bg-gray-100 text-left">
+
+                    <th class="px-4 py-3">User</th>
+
+                    <th class="px-4 py-3">Type</th>
+
+                    <th class="px-4 py-3">Amount</th>
+
+                    <th class="px-4 py-3">Balance</th>
+
+                    <th class="px-4 py-3">Status</th>
+
+                    <th class="px-4 py-3">Reference</th>
+
+                    <th class="px-4 py-3">Description</th>
+
+                    <th class="px-4 py-3">Date</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            <% if(transactions && transactions.length){ %>
+
+                <% transactions.forEach(tx=>{ %>
+
+                <tr class="border-b hover:bg-gray-50">
+
+                    <td class="px-4 py-4">
+
+                        <div class="font-semibold">
+
+                            <%= tx.user ? tx.user.name : "Deleted User" %>
+
+                        </div>
+
+                        <div class="text-sm text-gray-500">
+
+                            <%= tx.user ? tx.user.mobile : "-" %>
+
+                        </div>
+
+                    </td>
+
+                    <td class="px-4 py-4">
+
+                        <% if(tx.type==="deposit"){ %>
+
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                                Deposit
+                            </span>
+
+                        <% }else if(tx.type==="withdraw"){ %>
+
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
+                                Withdraw
+                            </span>
+
+                        <% }else if(tx.type==="bet"){ %>
+
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">
+                                Bet
+                            </span>
+
+                        <% }else if(tx.type==="win"){ %>
+
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">
+                                Win
+                            </span>
+
+                        <% }else{ %>
+
+                            <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs">
+                                Refund
+                            </span>
+
+                        <% } %>
+
+                    </td>
+
+                    <td class="px-4 py-4 font-semibold">
+
+                        ₹ <%= tx.amount %>
+
+                    </td>
+
+                    <td class="px-4 py-4">
+
+                        ₹ <%= tx.balance %>
+
+                    </td>
+
+                    <td class="px-4 py-4">
+
+                        <% if(tx.status==="success"){ %>
+
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                                Success
+                            </span>
+
+                        <% }else if(tx.status==="pending"){ %>
+
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">
+                                Pending
+                            </span>
+
+                        <% }else{ %>
+
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
+                                Failed
+                            </span>
+
+                        <% } %>
+
+                    </td>
+
+                    <td class="px-4 py-4">
+
+                        <%= tx.referenceId || "-" %>
+
+                    </td>
+
+                    <td class="px-4 py-4">
+
+                        <%= tx.description || "-" %>
+
+                    </td>
+
+                    <td class="px-4 py-4 whitespace-nowrap">
+
+                        <%= new Date(tx.createdAt).toLocaleString() %>
+
+                    </td>
+
+                </tr>
+
+                <% }) %>
+
+            <% }else{ %>
+
+                <tr>
+
+                    <td
+                        colspan="8"
+                        class="text-center py-10 text-gray-500"
+                    >
+
+                        No Transactions Found
+
+                    </td>
+
+                </tr>
+
+            <% } %>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
