@@ -173,36 +173,58 @@ const calculatePayout = async (result, bets, settings) => {
 // Lowest Payout Result
 // =====================================
 
-const getRTPResult = async (bets, settings) => {
+const getRTPResult = async (bets) => {
 
-    let bestResult = null;
-
-    let lowestPayout = Number.MAX_SAFE_INTEGER;
+    const resultStats = [];
 
     for (let number = 0; number <= 9; number++) {
 
         const result = createResult(number);
 
-        const payout = await calculatePayout(
-            result,
-            bets,
-            settings
-        );
+        let totalAmount = 0;
 
-        if (payout < lowestPayout) {
+        for (const bet of bets) {
 
-            lowestPayout = payout;
+            let match = false;
 
-            bestResult = result;
+            if (
+                bet.type === "number" &&
+                Number(bet.value) === result.number
+            ) {
+                match = true;
+            }
 
+            if (
+                bet.type === "color" &&
+                bet.value.toLowerCase() === result.color.toLowerCase()
+            ) {
+                match = true;
+            }
+
+            if (
+                bet.type === "size" &&
+                bet.value.toLowerCase() === result.size.toLowerCase()
+            ) {
+                match = true;
+            }
+
+            if (match) {
+                totalAmount += bet.amount;
+            }
         }
 
+        resultStats.push({
+            result,
+            totalAmount,
+        });
     }
 
-    console.log("Lowest Payout :", lowestPayout);
+    // Sabse kam amount wala pehle
+    resultStats.sort((a, b) => a.totalAmount - b.totalAmount);
 
-    return bestResult;
+    console.log(resultStats);
 
+    return resultStats[0].result;
 };
 
 // =====================================
