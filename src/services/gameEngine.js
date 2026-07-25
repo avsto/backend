@@ -173,58 +173,150 @@ const calculatePayout = async (result, bets, settings) => {
 // Lowest Payout Result
 // =====================================
 
-const getRTPResult = async (bets) => {
+const getRTPResult = async (bets, settings) => {
 
-    const resultStats = [];
+    const results = [];
 
     for (let number = 0; number <= 9; number++) {
 
         const result = createResult(number);
 
-        let totalAmount = 0;
+        let totalPayout = 0;
+
+        let totalBetAmount = 0;
+
+        let winnerUsers = new Set();
+
+        let winnerBets = 0;
 
         for (const bet of bets) {
 
-            let match = false;
+            let isWinner = false;
+            let payout = 0;
 
+            // Number
             if (
                 bet.type === "number" &&
                 Number(bet.value) === result.number
             ) {
-                match = true;
+
+                isWinner = true;
+                payout =
+                    bet.amount *
+                    settings.numberMultiplier;
+
             }
 
-            if (
+            // Color
+            else if (
                 bet.type === "color" &&
-                bet.value.toLowerCase() === result.color.toLowerCase()
+                bet.value.toLowerCase() === result.color
             ) {
-                match = true;
+
+                isWinner = true;
+                payout =
+                    bet.amount *
+                    settings.colorMultiplier;
+
             }
 
-            if (
+            // Size
+            else if (
                 bet.type === "size" &&
-                bet.value.toLowerCase() === result.size.toLowerCase()
+                bet.value.toLowerCase() === result.size
             ) {
-                match = true;
+
+                isWinner = true;
+                payout =
+                    bet.amount *
+                    settings.sizeMultiplier;
+
             }
 
-            if (match) {
-                totalAmount += bet.amount;
+            if (isWinner) {
+
+                totalPayout += payout;
+
+                totalBetAmount += bet.amount;
+
+                winnerUsers.add(
+                    bet.user.toString()
+                );
+
+                winnerBets++;
+
             }
+
         }
 
-        resultStats.push({
+        results.push({
+
             result,
-            totalAmount,
+
+            payout: totalPayout,
+
+            betAmount: totalBetAmount,
+
+            users: winnerUsers.size,
+
+            bets: winnerBets
+
         });
+
     }
 
-    // Sabse kam amount wala pehle
-    resultStats.sort((a, b) => a.totalAmount - b.totalAmount);
+    console.table(
+        results.map(x => ({
+            number: x.result.number,
+            color: x.result.color,
+            size: x.result.size,
+            payout: x.payout,
+            users: x.users,
+            amount: x.betAmount,
+            bets: x.bets
+        }))
+    );
 
-    console.log(resultStats);
+    // Priority 1
+    // Zero payout
 
-    return resultStats[0].result;
+    let candidates = results.filter(
+        x => x.payout === 0
+    );
+
+    if (candidates.length) {
+
+        return candidates[
+            Math.floor(
+                Math.random() * candidates.length
+            )
+        ].result;
+
+    }
+
+    // Priority 2
+    // Lowest payout
+
+    candidates = [...results].sort((a, b) => {
+
+        if (a.payout !== b.payout)
+            return a.payout - b.payout;
+
+        if (a.users !== b.users)
+            return a.users - b.users;
+
+        if (a.betAmount !== b.betAmount)
+            return a.betAmount - b.betAmount;
+
+        if (a.bets !== b.bets)
+            return a.bets - b.bets;
+
+        return Math.random() - 0.5;
+
+    });
+
+    return candidates[0].result;
+
 };
 
 // =====================================
