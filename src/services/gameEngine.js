@@ -130,193 +130,276 @@ const createResult = (number) => {
 // =====================================
 
 const calculatePayout = async (result, bets, settings) => {
+  let payout = 0;
 
-    let payout = 0;
+  for (const bet of bets) {
+    // Number
 
-    for (const bet of bets) {
-
-        // Number
-
-        if (
-            bet.type === "number" &&
-            Number(bet.value) === result.number
-        ) {
-            payout += bet.amount * settings.numberMultiplier;
-        }
-
-        // Color
-
-        else if (
-            bet.type === "color" &&
-            bet.value.toLowerCase() === result.color.toLowerCase()
-        ) {
-            payout += bet.amount * settings.colorMultiplier;
-        }
-
-        // Size
-
-        else if (
-            bet.type === "size" &&
-            bet.value.toLowerCase() === result.size.toLowerCase()
-        ) {
-            payout += bet.amount * settings.sizeMultiplier;
-        }
-
+    if (bet.type === "number" && Number(bet.value) === result.number) {
+      payout += bet.amount * settings.numberMultiplier;
     }
 
-    return payout;
+    // Color
+    else if (
+      bet.type === "color" &&
+      bet.value.toLowerCase() === result.color.toLowerCase()
+    ) {
+      payout += bet.amount * settings.colorMultiplier;
+    }
 
+    // Size
+    else if (
+      bet.type === "size" &&
+      bet.value.toLowerCase() === result.size.toLowerCase()
+    ) {
+      payout += bet.amount * settings.sizeMultiplier;
+    }
+  }
+
+  return payout;
 };
 
 // =====================================
-// RTP Engine
-// Lowest Payout Result
+// RTP Helper Functions
 // =====================================
 
-const getRTPResult = async (bets, settings) => {
+// Number -> Available Colors
+const getNumberColors = (number) => {
+  if (number === 0) return ["red", "violet"];
 
-    const results = [];
+  if (number === 5) return ["green", "violet"];
 
-    for (let number = 0; number <= 9; number++) {
+  return number % 2 === 0 ? ["red"] : ["green"];
+};
 
-        const result = createResult(number);
+// -------------------------------------
+// Big / Small Statistics
+// -------------------------------------
 
-        let totalPayout = 0;
+const getSizeStats = (bets) => {
+  const stats = {
+    big: {
+      amount: 0,
+      bets: 0,
+    },
+    small: {
+      amount: 0,
+      bets: 0,
+    },
+  };
 
-        let totalBetAmount = 0;
+  for (const bet of bets) {
+    if (bet.type !== "size") continue;
 
-        let winnerUsers = new Set();
+    const key = bet.value.toLowerCase();
 
-        let winnerBets = 0;
+    if (!stats[key]) continue;
 
-        for (const bet of bets) {
+    stats[key].amount += bet.amount;
+    stats[key].bets++;
+  }
 
-            let isWinner = false;
-            let payout = 0;
+  return stats;
+};
 
-            // Number
-            if (
-                bet.type === "number" &&
-                Number(bet.value) === result.number
-            ) {
+// -------------------------------------
+// Color Statistics
+// -------------------------------------
 
-                isWinner = true;
-                payout =
-                    bet.amount *
-                    settings.numberMultiplier;
+const getColorStats = (bets) => {
+  const stats = {
+    red: {
+      amount: 0,
+      bets: 0,
+    },
 
-            }
+    green: {
+      amount: 0,
+      bets: 0,
+    },
 
-            // Color
-            else if (
-                bet.type === "color" &&
-                bet.value.toLowerCase() === result.color
-            ) {
+    violet: {
+      amount: 0,
+      bets: 0,
+    },
+  };
 
-                isWinner = true;
-                payout =
-                    bet.amount *
-                    settings.colorMultiplier;
+  for (const bet of bets) {
+    if (bet.type !== "color") continue;
 
-            }
+    const key = bet.value.toLowerCase();
 
-            // Size
-            else if (
-                bet.type === "size" &&
-                bet.value.toLowerCase() === result.size
-            ) {
+    if (!stats[key]) continue;
 
-                isWinner = true;
-                payout =
-                    bet.amount *
-                    settings.sizeMultiplier;
+    stats[key].amount += bet.amount;
+    stats[key].bets++;
+  }
 
-            }
+  return stats;
+};
 
-            if (isWinner) {
+// -------------------------------------
+// Number Statistics
+// -------------------------------------
 
-                totalPayout += payout;
+const getNumberStats = (bets) => {
+  const stats = {};
 
-                totalBetAmount += bet.amount;
+  for (let i = 0; i <= 9; i++) {
+    stats[i] = {
+      number: i,
 
-                winnerUsers.add(
-                    bet.user.toString()
-                );
+      amount: 0,
 
-                winnerBets++;
+      bets: 0,
+    };
+  }
 
-            }
+  for (const bet of bets) {
+    if (bet.type !== "number") continue;
 
-        }
+    const num = Number(bet.value);
 
-        results.push({
+    if (!stats[num]) continue;
 
-            result,
+    stats[num].amount += bet.amount;
 
-            payout: totalPayout,
+    stats[num].bets++;
+  }
 
-            betAmount: totalBetAmount,
+  return stats;
+};
 
-            users: winnerUsers.size,
+// -------------------------------------
+// Decide Winner Between Two Options
+// -------------------------------------
 
-            bets: winnerBets
+const chooseLowest = (first, second) => {
+  // No bet always wins
 
-        });
+  if (first.amount === 0 && first.bets === 0) return "first";
 
-    }
+  if (second.amount === 0 && second.bets === 0) return "second";
 
-    console.table(
-        results.map(x => ({
-            number: x.result.number,
-            color: x.result.color,
-            size: x.result.size,
-            payout: x.payout,
-            users: x.users,
-            amount: x.betAmount,
-            bets: x.bets
-        }))
-    );
+  // Lowest Amount
 
-    // Priority 1
-    // Zero payout
+  if (first.amount !== second.amount)
+    return first.amount < second.amount ? "first" : "second";
 
-    let candidates = results.filter(
-        x => x.payout === 0
-    );
+  // Lowest Bets
 
-    if (candidates.length) {
+  if (first.bets !== second.bets)
+    return first.bets < second.bets ? "first" : "second";
 
-        return candidates[
-            Math.floor(
-                Math.random() * candidates.length
-            )
-        ].result;
+  // Random
 
-    }
+  return Math.random() > 0.5 ? "first" : "second";
+};
 
-    // Priority 2
-    // Lowest payout
+// -------------------------------------
+// Pick Lowest Color
+// -------------------------------------
 
-    candidates = [...results].sort((a, b) => {
+const pickLowestColor = (colors, colorStats) => {
+  let winner = colors[0];
 
-        if (a.payout !== b.payout)
-            return a.payout - b.payout;
+  for (let i = 1; i < colors.length; i++) {
+    const result = chooseLowest(colorStats[winner], colorStats[colors[i]]);
 
-        if (a.users !== b.users)
-            return a.users - b.users;
+    if (result === "second") winner = colors[i];
+  }
 
-        if (a.betAmount !== b.betAmount)
-            return a.betAmount - b.betAmount;
+  return winner;
+};
 
-        if (a.bets !== b.bets)
-            return a.bets - b.bets;
+// -------------------------------------
+// Pick Lowest Number
+// -------------------------------------
 
-        return Math.random() - 0.5;
+const pickLowestNumber = (numbers, numberStats) => {
+  let winner = numbers[0];
 
+  for (let i = 1; i < numbers.length; i++) {
+    const result = chooseLowest(numberStats[winner], numberStats[numbers[i]]);
+
+    if (result === "second") winner = numbers[i];
+  }
+
+  return winner;
+};
+
+// =====================================
+// Smart RTP Engine
+// Big/Small -> Color -> Number
+// =====================================
+
+const getRTPResult = async (bets) => {
+  // --------------------------
+  // Statistics
+  // --------------------------
+
+  const sizeStats = getSizeStats(bets);
+  const colorStats = getColorStats(bets);
+  const numberStats = getNumberStats(bets);
+
+  // --------------------------
+  // STEP 1 : Choose Size
+  // --------------------------
+
+  let selectedSize;
+
+  const sizeWinner = chooseLowest(sizeStats.small, sizeStats.big);
+
+  selectedSize = sizeWinner === "first" ? "small" : "big";
+
+  console.log("Selected Size :", selectedSize);
+
+  // --------------------------
+  // STEP 2 : Available Numbers
+  // --------------------------
+
+  const availableNumbers =
+    selectedSize === "small" ? [0, 1, 2, 3, 4] : [5, 6, 7, 8, 9];
+
+  // --------------------------
+  // STEP 3 : Available Colors
+  // --------------------------
+
+  let availableColors = [];
+
+  availableNumbers.forEach((number) => {
+    getNumberColors(number).forEach((color) => {
+      if (!availableColors.includes(color)) availableColors.push(color);
     });
+  });
 
-    return candidates[0].result;
+  const selectedColor = pickLowestColor(availableColors, colorStats);
 
+  console.log("Selected Color :", selectedColor);
+
+  // --------------------------
+  // STEP 4 : Valid Numbers
+  // --------------------------
+
+  const validNumbers = availableNumbers.filter((number) =>
+    getNumberColors(number).includes(selectedColor),
+  );
+
+  console.log("Valid Numbers :", validNumbers);
+
+  // --------------------------
+  // STEP 5 : Final Number
+  // --------------------------
+
+  const selectedNumber = pickLowestNumber(validNumbers, numberStats);
+
+  console.log("Selected Number :", selectedNumber);
+
+  // --------------------------
+  // Final Result
+  // --------------------------
+
+  return createResult(selectedNumber);
 };
 
 // =====================================
@@ -324,17 +407,13 @@ const getRTPResult = async (bets, settings) => {
 // =====================================
 
 const getManualResult = (settings) => {
+  return {
+    number: Number(settings.manualNumber),
 
-    return {
+    color: settings.manualColor,
 
-        number: Number(settings.manualNumber),
-
-        color: settings.manualColor,
-
-        size: settings.manualSize,
-
-    };
-
+    size: settings.manualSize,
+  };
 };
 
 // =====================================
@@ -342,60 +421,62 @@ const getManualResult = (settings) => {
 // =====================================
 
 const getAutoResult = () => {
+  const number = Math.floor(Math.random() * 10);
 
-    const number = Math.floor(Math.random() * 10);
-
-    return createResult(number);
-
+  return createResult(number);
 };
 
 // =====================================
 // Generate Result
 // =====================================
+// =====================================
+// Generate Result
+// =====================================
 
 export const generateResult = async (game) => {
+  await refreshSettings();
 
-    await refreshSettings();
+  const settings = await getSettings();
 
-    const settings = await getSettings();
+  // -----------------------------
+  // Manual Mode
+  // -----------------------------
+  if (settings.resultMode === "manual") {
+    console.log("Manual Result");
 
-    // Manual Mode
+    return {
+      number: Number(settings.manualNumber),
+      color: getColor(Number(settings.manualNumber)),
+      size: getSize(Number(settings.manualNumber)),
+    };
+  }
 
-    if (settings.resultMode === "manual") {
+  // -----------------------------
+  // RTP Mode
+  // -----------------------------
+  if (settings.resultMode === "rtp" || settings.rtpEnabled) {
+    console.log("RTP Result");
 
-        console.log("Manual Result");
+    const bets = await Bet.find({
+      game: game._id,
+      result: "pending",
+    });
 
-        return getManualResult(settings);
+    return await getRTPResult(bets, settings);
+  }
 
-    }
+  // -----------------------------
+  // Auto Mode
+  // -----------------------------
+  console.log("Auto Result");
 
-    // RTP Mode
+  const number = Math.floor(Math.random() * 10);
 
-    if (
-        settings.resultMode === "rtp" ||
-        settings.rtpEnabled
-    ) {
-
-        console.log("RTP Result");
-
-        const bets = await Bet.find({
-            game: game._id,
-            result: "pending",
-        });
-
-        return await getRTPResult(
-            bets,
-            settings
-        );
-
-    }
-
-    // Auto
-
-    console.log("Auto Result");
-
-    return getAutoResult();
-
+  return {
+    number,
+    color: getColor(number),
+    size: getSize(number),
+  };
 };
 
 // =====================================
@@ -403,180 +484,126 @@ export const generateResult = async (game) => {
 // =====================================
 
 export const processBets = async (game) => {
+  try {
+    await refreshSettings();
 
-    try {
+    const settings = await getSettings();
 
-        await refreshSettings();
+    const bets = await Bet.find({
+      game: game._id,
+      result: "pending",
+    });
 
-        const settings = await getSettings();
+    console.log(`Settling ${bets.length} Bets`);
 
-        const bets = await Bet.find({
-            game: game._id,
-            result: "pending",
+    let totalBetAmount = 0;
+    let totalPlayers = new Set();
+
+    for (const bet of bets) {
+      totalBetAmount += bet.amount;
+
+      totalPlayers.add(bet.user.toString());
+
+      let isWinner = false;
+
+      let winningAmount = 0;
+
+      // ======================
+      // Number
+      // ======================
+
+      if (bet.type === "number" && Number(bet.value) === game.result.number) {
+        isWinner = true;
+
+        winningAmount = bet.amount * settings.numberMultiplier;
+      }
+
+      // ======================
+      // Color
+      // ======================
+      else if (
+        bet.type === "color" &&
+        bet.value.toLowerCase() === game.result.color.toLowerCase()
+      ) {
+        isWinner = true;
+
+        winningAmount = bet.amount * settings.colorMultiplier;
+      }
+
+      // ======================
+      // Size
+      // ======================
+      else if (
+        bet.type === "size" &&
+        bet.value.toLowerCase() === game.result.size.toLowerCase()
+      ) {
+        isWinner = true;
+
+        winningAmount = bet.amount * settings.sizeMultiplier;
+      }
+
+      // ======================
+      // Winner
+      // ======================
+
+      if (isWinner) {
+        const wallet = await Wallet.findOne({
+          user: bet.user,
         });
 
-        console.log(
-            `Settling ${bets.length} Bets`
-        );
+        if (wallet) {
+          wallet.balance += winningAmount;
 
-        let totalBetAmount = 0;
-        let totalPlayers = new Set();
+          wallet.transactions.unshift({
+            type: "win",
 
-        for (const bet of bets) {
+            amount: winningAmount,
 
-            totalBetAmount += bet.amount;
+            status: "success",
 
-            totalPlayers.add(
-                bet.user.toString()
-            );
+            referenceId: game.period,
 
-            let isWinner = false;
+            description: `Game Win (${game.period})`,
+          });
 
-            let winningAmount = 0;
+          await wallet.save();
 
-            // ======================
-            // Number
-            // ======================
-
-            if (
-                bet.type === "number" &&
-                Number(bet.value) === game.result.number
-            ) {
-
-                isWinner = true;
-
-                winningAmount =
-                    bet.amount *
-                    settings.numberMultiplier;
-
-            }
-
-            // ======================
-            // Color
-            // ======================
-
-            else if (
-                bet.type === "color" &&
-                bet.value.toLowerCase() ===
-                    game.result.color.toLowerCase()
-            ) {
-
-                isWinner = true;
-
-                winningAmount =
-                    bet.amount *
-                    settings.colorMultiplier;
-
-            }
-
-            // ======================
-            // Size
-            // ======================
-
-            else if (
-                bet.type === "size" &&
-                bet.value.toLowerCase() ===
-                    game.result.size.toLowerCase()
-            ) {
-
-                isWinner = true;
-
-                winningAmount =
-                    bet.amount *
-                    settings.sizeMultiplier;
-
-            }
-
-            // ======================
-            // Winner
-            // ======================
-
-            if (isWinner) {
-
-                const wallet =
-                    await Wallet.findOne({
-                        user: bet.user,
-                    });
-
-                if (wallet) {
-
-                    wallet.balance += winningAmount;
-
-                    wallet.transactions.unshift({
-
-                        type: "win",
-
-                        amount: winningAmount,
-
-                        status: "success",
-
-                        referenceId: game.period,
-
-                        description:
-                            `Game Win (${game.period})`,
-
-                    });
-
-                    await wallet.save();
-
-                    await emitWallet(
-                        bet.user
-                    );
-
-                }
-
-                bet.result = "win";
-
-                bet.winningAmount =
-                    winningAmount;
-
-            }
-
-            // ======================
-            // Lose
-            // ======================
-
-            else {
-
-                bet.result = "lose";
-
-                bet.winningAmount = 0;
-
-            }
-
-            bet.settlement = true;
-
-            await bet.save();
-
+          await emitWallet(bet.user);
         }
 
-        // ======================
-        // Update Game Stats
-        // ======================
+        bet.result = "win";
 
-        game.totalBetAmount =
-            totalBetAmount;
+        bet.winningAmount = winningAmount;
+      }
 
-        game.totalPlayers =
-            totalPlayers.size;
+      // ======================
+      // Lose
+      // ======================
+      else {
+        bet.result = "lose";
 
-        await game.save();
+        bet.winningAmount = 0;
+      }
 
-        console.log(
-            "Settlement Completed"
-        );
+      bet.settlement = true;
 
+      await bet.save();
     }
 
-    catch (err) {
+    // ======================
+    // Update Game Stats
+    // ======================
 
-        console.log(
-            "Settlement Error",
-            err
-        );
+    game.totalBetAmount = totalBetAmount;
 
-    }
+    game.totalPlayers = totalPlayers.size;
 
+    await game.save();
+
+    console.log("Settlement Completed");
+  } catch (err) {
+    console.log("Settlement Error", err);
+  }
 };
 
 // =====================================
@@ -590,80 +617,57 @@ let currentGame = null;
 // =====================================
 
 const startNewGame = async () => {
+  try {
+    await refreshSettings();
 
-    try {
+    const settings = await getSettings();
 
-        await refreshSettings();
+    // Maintenance Mode
 
-        const settings = await getSettings();
+    if (settings.maintenanceMode) {
+      console.log("Maintenance Mode Enabled");
 
-        // Maintenance Mode
-
-        if (settings.maintenanceMode) {
-
-            console.log("Maintenance Mode Enabled");
-
-            return setTimeout(
-                startNewGame,
-                5000
-            );
-
-        }
-
-        // Close old running games
-
-        await Game.updateMany(
-            {
-                status: "running",
-            },
-            {
-                $set: {
-                    status: "completed",
-                    endTime: new Date(),
-                },
-            }
-        );
-
-        const period = generatePeriod();
-
-        currentGame = await Game.create({
-
-            period,
-
-            status: "running",
-
-            startTime: new Date(),
-
-        });
-
-        console.log(
-            "Game Started :",
-            period
-        );
-
-        emitNewGame(currentGame);
-
-        // Wait Game Duration
-
-        await delay(
-            settings.gameDuration * 1000
-        );
-
-        await finishGame();
-
+      return setTimeout(startNewGame, 5000);
     }
 
-    catch (err) {
+    // Close old running games
 
-        console.log(err);
+    await Game.updateMany(
+      {
+        status: "running",
+      },
+      {
+        $set: {
+          status: "completed",
+          endTime: new Date(),
+        },
+      },
+    );
 
-        setTimeout(
-            startNewGame,
-            3000
-        );
+    const period = generatePeriod();
 
-    }
+    currentGame = await Game.create({
+      period,
 
+      status: "running",
+
+      startTime: new Date(),
+    });
+
+    console.log("Game Started :", period);
+
+    emitNewGame(currentGame);
+
+    // Wait Game Duration
+
+    await delay(settings.gameDuration * 1000);
+
+    await finishGame();
+  } catch (err) {
+    console.log(err);
+
+    setTimeout(startNewGame, 3000);
+  }
 };
 
 // =====================================
@@ -671,78 +675,55 @@ const startNewGame = async () => {
 // =====================================
 
 const finishGame = async () => {
+  try {
+    await refreshSettings();
 
-    try {
+    const settings = await getSettings();
 
-        await refreshSettings();
+    currentGame = await Game.findOne({
+      status: "running",
+    }).sort({
+      createdAt: 1,
+    });
 
-        const settings = await getSettings();
+    if (!currentGame) {
+      console.log("No Running Game");
 
-        currentGame = await Game.findOne({
-
-            status: "running",
-
-        }).sort({
-
-            createdAt: 1,
-
-        });
-
-        if (!currentGame) {
-
-            console.log("No Running Game");
-
-            return startNewGame();
-
-        }
-
-        // Generate Result
-
-        currentGame.result =
-            await generateResult(currentGame);
-
-        currentGame.status = "completed";
-
-        currentGame.endTime = new Date();
-
-        currentGame.resultTime = new Date();
-
-        await currentGame.save();
-
-        // Settlement
-
-        await processBets(currentGame);
-
-        // Socket Result
-
-        emitGameResult(currentGame);
-
-        console.log(
-            "Result Declared",
-            currentGame.result
-        );
-
-        // Break Time
-
-        await delay(
-            settings.breakTime * 1000
-        );
-
-        await startNewGame();
-
+      return startNewGame();
     }
 
-    catch (err) {
+    // Generate Result
 
-        console.log(err);
+    currentGame.result = await generateResult(currentGame);
 
-        setTimeout(
-            startNewGame,
-            3000
-        );
+    currentGame.status = "completed";
 
-    }
+    currentGame.endTime = new Date();
 
+    currentGame.resultTime = new Date();
+
+    await currentGame.save();
+
+    // Settlement
+
+    await processBets(currentGame);
+
+    // Socket Result
+
+    emitGameResult(currentGame);
+
+    console.log("Result Declared", currentGame.result);
+
+    // Break Time
+
+    await delay(settings.breakTime * 1000);
+
+    await startNewGame();
+  } catch (err) {
+    console.log(err);
+
+    setTimeout(startNewGame, 3000);
+  }
 };
 
 // =====================================
@@ -750,23 +731,17 @@ const finishGame = async () => {
 // =====================================
 
 const recoverGame = async () => {
+  const runningGame = await Game.findOne({
+    status: "running",
+  });
 
-    const runningGame = await Game.findOne({
+  if (!runningGame) {
+    return startNewGame();
+  }
 
-        status: "running",
+  currentGame = runningGame;
 
-    });
-
-    if (!runningGame) {
-
-        return startNewGame();
-
-    }
-
-    currentGame = runningGame;
-
-    await finishGame();
-
+  await finishGame();
 };
 
 // =====================================
@@ -774,13 +749,9 @@ const recoverGame = async () => {
 // =====================================
 
 export const startGameEngine = async () => {
+  console.log("Starting Game Engine...");
 
-    console.log(
-        "Starting Game Engine..."
-    );
+  await refreshSettings();
 
-    await refreshSettings();
-
-    await recoverGame();
-
+  await recoverGame();
 };
